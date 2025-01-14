@@ -11,13 +11,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class RestControllerExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(value = InvalidIbanException.class)
-    protected ResponseEntity<Object> handleBadIban(
-            RuntimeException ex, WebRequest request) {
-        return handleExceptionInternal(ex, "Provided IBAN is not valid.",
-                new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
-    }
-
     @ExceptionHandler(value = ApiAccessException.class)
     protected ResponseEntity<Object> handleApiAccessError(
             RuntimeException ex, WebRequest request) {

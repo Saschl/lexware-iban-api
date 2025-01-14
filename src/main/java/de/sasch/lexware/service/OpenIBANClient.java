@@ -1,7 +1,6 @@
 package de.sasch.lexware.service;
 
 import de.sasch.lexware.exception.ApiAccessException;
-import de.sasch.lexware.exception.InvalidIbanException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -17,10 +16,6 @@ public class OpenIBANClient {
         var bankInfoFromApi = restClient.get().uri(openIbanUrl, iban).retrieve().body(BankDTO.class);
         if (bankInfoFromApi == null) {
             throw new ApiAccessException("Response from API is null");
-        }
-
-        if (!bankInfoFromApi.isValid()) {
-            throw new InvalidIbanException("Provided IBAN is not valid");
         }
 
         return bankInfoFromApi;
