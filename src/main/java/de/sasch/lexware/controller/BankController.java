@@ -27,8 +27,7 @@ public class BankController {
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "The bank information for the supplied iban",
-                            content = @Content(schema = @Schema(implementation = BankDTO.class))
+                            description = "The bank information for the supplied iban"
                     ),
                     @ApiResponse(
                             responseCode = "400",
