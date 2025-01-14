@@ -13,7 +13,6 @@ public class BankDTO {
     @Data
     @Builder
     static class BankData {
-        private String bankCode;
         private String name;
     }
 }

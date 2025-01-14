@@ -7,6 +7,7 @@ import de.sasch.lexware.repository.BankRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
 import java.time.LocalDateTime;
@@ -41,7 +42,6 @@ public class BankService {
                 var bankInfo = BankDTO.builder()
                         .bankData(BankDTO.BankData
                                 .builder()
-                                .bankCode("")
                                 .name(bankInfoFromCache.get().getName())
                                 .build())
                         .valid(bankInfoFromCache.get().isValid())
@@ -59,23 +59,30 @@ public class BankService {
     }
 
     private BankDTO fetchBankInfoFromApi(String iban) {
-        var bankInfoFromApi = restClient.get().uri(openIbanUrl, iban).retrieve().body(BankDTO.class);
+        try {
+            var bankInfoFromApi = restClient.get().uri(openIbanUrl, iban).retrieve().body(BankDTO.class);
 
-        if (bankInfoFromApi == null) {
-            throw new ApiAccessException("Response from API is null");
+            if (bankInfoFromApi == null) {
+                throw new ApiAccessException("Response from API is null");
+            }
+
+            if (!bankInfoFromApi.isValid()) {
+                throw new InvalidIbanException("Provided IBAN is not valid");
+            }
+
+            var bankEntity = new BankEntity();
+            bankEntity.setIban(iban);
+            bankEntity.setName(bankInfoFromApi.getBankData().getName());
+            bankEntity.setExpiresAt(LocalDateTime.now().plusHours(1L));
+            bankEntity.setValid(true);
+            bankRepository.save(bankEntity);
+            log.info("Got bank info from API");
+            return bankInfoFromApi;
+
+        } catch (ResourceAccessException e) {
+            throw new ApiAccessException("Error when accessing OpenIBAN API");
         }
 
-        if (!bankInfoFromApi.isValid()) {
-            throw new InvalidIbanException("Provided IBAN is not valid");
-        }
-
-        var bankEntity = new BankEntity();
-        bankEntity.setIban(iban);
-
-        bankEntity.setName(bankInfoFromApi.getBankData().getName());
-        bankEntity.setExpiresAt(LocalDateTime.now().plusHours(1L));
-        log.info("Got bank info from API");
-        return bankInfoFromApi;
     }
 
 
