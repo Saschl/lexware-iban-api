@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: create_bank_cache_table
+      author: Sascha
+      changes:
+        - createTable:
+            tableName: bank_cache
+            columns:
+              - column:
+                  name: db_id
+                  type: integer
+              - column:
+                  name: iban
+                  type: varchar(34)
+              - column:
+                  name: name
+                  type: varchar(5000)
+              - column:
+                  name: expires_at
+                  type: datetime
+              - column:
+                  name: is_valid
+                  type: boolean
+
+  - changeSet:
+      id: create_bank_cache_seq
+      author: Sascha
+      changes:
+        - createSequence:
+            sequenceName: bank_cache_seq
+            incrementBy: 50
+
