@@ -27,7 +27,9 @@ public class BankController {
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "The bank information for the supplied iban"),
+                            description = "The bank information for the supplied iban",
+                            content = @Content(schema = @Schema(implementation = BankDTO.class))
+                    ),
                     @ApiResponse(
                             responseCode = "400",
                             description = "The provided IBAN is not valid",
@@ -39,7 +41,6 @@ public class BankController {
     public ResponseEntity<BankDTO> getBankInfo(@RequestParam("iban") @NotBlank @Size(max = 34) String iban) {
 
         return ResponseEntity.ok(bankService.getBankNameFromIban(iban));
-
 
     }
 }
