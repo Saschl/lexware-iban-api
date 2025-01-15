@@ -30,3 +30,26 @@ databaseChangeLog:
             sequenceName: bank_cache_seq
             incrementBy: 50
 
+  - changeSet:
+      id: addPrimaryKey
+      author: Sascha
+      changes:
+        - addNotNullConstraint:
+            columnName: db_id
+            tableName: bank_cache
+        - addPrimaryKey:
+            columnNames: db_id
+            constraintName: pk_db_id
+            tableName: bank_cache
+
+  - changeSet:
+      id: addUniqueConstraint
+      author: Sascha
+      changes:
+        - addNotNullConstraint:
+            columnName: iban
+            tableName: bank_cache
+        - addUniqueConstraint:
+            columnNames: iban
+            constraintName: unique_iban
+            tableName: bank_cache

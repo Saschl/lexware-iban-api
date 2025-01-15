@@ -6,6 +6,9 @@ import de.sasch.lexware.repository.BankRepository;
 import de.sasch.lexware.util.IBANValidator;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 
@@ -20,6 +23,7 @@ public class BankService {
     private final OpenIBANClient openIBANClient;
     private final BankRepository bankRepository;
 
+    @Retryable(retryFor = DataIntegrityViolationException.class, backoff = @Backoff(delay = 100))
     public BankDTO getBankNameFromIban(String iban) {
         log.info("calling for iban {}", iban);
 
@@ -57,7 +61,7 @@ public class BankService {
             bankEntity.setName(bankInfoFromApi.getBankData().getName().isEmpty() ? "Unknown" : bankInfoFromApi.getBankData().getName());
             bankEntity.setExpiresAt(LocalDateTime.now().plusHours(1L));
             bankEntity.setValid(bankInfoFromApi.isValid());
-            bankRepository.save(bankEntity);
+            bankEntity = bankRepository.save(bankEntity);
 
             log.info("Got bank info from API and updated cache");
             return mapEntityToResponse(bankEntity);
